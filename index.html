@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roblox Avatar API</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input, button { padding: 10px; font-size: 16px; }
+    #result { margin-top: 20px; }
+    img { border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <h1>Roblox Avatar API</h1>
+  <p>Kullanıcı adını gir ve profil bilgilerini al:</p>
+  <input type="text" id="username" placeholder="Roblox kullanıcı adı" />
+  <button onclick="fetchUser()">Sorgula</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function fetchUser() {
+      const username = document.getElementById('username').value.trim();
+      const resultDiv = document.getElementById('result');
+      if (!username) {
+        resultDiv.innerHTML = '<p style="color:red;">Lütfen bir kullanıcı adı girin.</p>';
+        return;
+      }
+      resultDiv.innerHTML = 'Yükleniyor...';
+
+      try {
+        const res = await fetch(`/api?username=${encodeURIComponent(username)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          resultDiv.innerHTML = `<p style="color:red;">Hata: ${data.error}</p>`;
+          return;
+        }
+
+        resultDiv.innerHTML = `
+          <h2>${data.display_name} (ID: ${data.id})</h2>
+          <p>Hesap oluşturulma tarihi: ${new Date(data.created).toLocaleDateString()}</p>
+          <p>Açıklama: ${data.description || 'Yok'}</p>
+          <img src="${data.avatar}" alt="Avatar" width="150" height="150" />
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Bir hata oluştu: ${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
